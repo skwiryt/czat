@@ -7,6 +7,16 @@ const messageContentInput = document.getElementById('message-content');
 
 const socket = io();
 socket.on('message', ({ author, content }) => addMessage(author, content))
+socket.on('leave', ({name}) => { 
+  console.log(`${name} has left`);
+  const content = `${name} has left the conversation`;
+  addMessage('Chat Bot', content);
+});
+socket.on('join', ({name}) => {
+  console.log(`${name} has joined`);
+  const content = `${name} has joined the conversation`;
+  addMessage('Chat Bot', content);
+});
 
 let userName;
 
@@ -29,7 +39,10 @@ loginForm.addEventListener('submit', (e) => login(e));
 
 const addMessage = (user, message) => {
   const messageElement = document.createElement('li');
-  messageElement.classList.add('message', 'message--received', user === userName ? 'message--self' : '');
+  messageElement.classList.add('message', 'message--received');
+  if (user === userName) {
+    messageElement.classList.add('message--self');
+  }
   
   const header = document.createElement('h3');
   header.textContent = user === userName ? 'You' : user;

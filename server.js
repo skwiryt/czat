@@ -23,6 +23,7 @@ io.on('connection', (socket) => {
   socket.on('login', (login) => {
     users.push({name: login.name, id: socket.id});
     socket.emit('login');
+    socket.broadcast.emit('join', {name: login.name})
     console.log(`Server added user: ${login.name} with id: ${socket.id}`);
   })
   socket.on('message', (message) => { 
@@ -32,8 +33,12 @@ io.on('connection', (socket) => {
   });
   socket.on('disconnect', () => {
     const index = users.findIndex(u => u.id === socket.id);
-    users.splice(index, 1);
-    console.log(`Server removed user with id: ${socket.id}`)
-  })
+    if (index >= 0) {
+      const name = users[index].name    
+      users.splice(index, 1);
+      io.emit('leave', { name: name });
+      console.log(`Server removed user with id: ${socket.id}`);
+    }
+  });
 
 });
